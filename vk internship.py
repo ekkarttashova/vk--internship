@@ -5,14 +5,14 @@ def data(input_data):
     data[['date', 'time']] = data['timestamp'].str.split('T', expand=True)
     data = data[['date', 'value']]
 
-    # сортировка по ворастанию ГГГГ-ММ-ДД
+    # сортировка по возрастанию ГГГГ-ММ-ДД
     data = data.sort_values(by=['date'])
 
     # Нахождение значений для удаления
     first_date = str(data['date'].iloc[0])[:7]
     last_date = str(data['date'].iloc[-1])[:7]
 
-    # Таблица со знаечниями, месяц которых неполноценный (т.е. значения первого из представленных месяцев и последнего)
+    # Таблица со значениями, месяц которых неполноценный (т.е. значения первого из представленных месяцев и последнего)
     remove = data[data['date'].str[:7].isin([first_date, last_date])]
     # Удаление из таблицы data строк, которые есть в remove и сохранение новой таблицы filtered_data с конечными данными
     merged = data.merge(remove, how='outer', indicator=True)
@@ -25,7 +25,7 @@ def data(input_data):
     # Группировка данных по месяцу и году и нахождение максимального значения value для каждого месяца и года
     max_values = filtered_data.groupby('month').apply(lambda x: x.loc[x['value'].idxmax()])
 
-    # Удаление столбца 'month' и изменение формата вывода
+    # Удаление лишнего столбца с месяцем и годом
     max_values = max_values[['date', 'value']].reset_index(drop=True)
     max_values = (max_values.rename(columns={'date': 'timestamp'}))
 
